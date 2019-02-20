@@ -4,3 +4,5 @@ config.json
 node_modules
 *.yaml
 /env
+hangups-registration.yaml
+package-lock.json

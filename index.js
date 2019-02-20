@@ -107,12 +107,32 @@ class App extends MatrixPuppetBridgeBase {
   sendReadReceiptAsPuppetToThirdPartyRoomWithId() {
     // not available for now
   }
-  sendMessageAsPuppetToThirdPartyRoomWithId(id, text) {
-    return this.thirdPartyClient.send(id, text);
+  sendMessageAsPuppetToThirdPartyRoomWithId(id, text, event) {
+
+    return this.thirdPartyClient.send(id, "**" + event.sender.split(":")[0].substring(1) + "**\n" + text);
   }
-  sendImageMessageAsPuppetToThirdPartyRoomWithId(id, data) {
+  sendImageMessageAsPuppetToThirdPartyRoomWithId(id, data, event) {
+    this.sendMessageAsPuppetToThirdPartyRoomWithId(id, "**" + event.sender.split(':')[0].substring(1) + "**", event);
     return this.thirdPartyClient.sendImage(id, data);
   }
+  sendFileMessageAsPuppetToThirdPartyRoomWithId(id, data, event) {
+    var url_arr = event.content.url.split("/");
+    var url = "https://matrix.org/_matrix/media/v1/download/matrix.org/" +  url_arr[url_arr.length - 1];
+    var filenameStr = " **(" + event.content.body + ")**";
+    debugVerbose("file url is ", url);
+    var text = "**" + event.sender.split(":")[0].substring(1) + "**";
+    if (event.content.msgtype === "m.audio") {
+	text += " sent an audio file " + url + filenameStr;
+    }
+    else if (event.content.msgtype === "m.video") {
+	text += " sent a video " + url + filenameStr;
+    }
+    else {
+        text += " sent a file " + url + filenameStr;
+    }
+    return this.thirdPartyClient.send(id, text);
+  }
+
 }
 
 new Cli({
